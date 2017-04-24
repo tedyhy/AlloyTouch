@@ -9,8 +9,8 @@
     'use strict';
 
     /**
-     * 兼容各个浏览器的requestAnimationFrame和cancelAnimationFrame，
-     * 利用setTimeout来兼容不支持requestAnimationFrame的浏览器。
+     * 兼容各个浏览器的 requestAnimationFrame 和 cancelAnimationFrame，
+     * 利用 setTimeout 来兼容不支持 requestAnimationFrame 的浏览器。
      */
 
     if (!Date.now)
@@ -23,11 +23,14 @@
         window.cancelAnimationFrame = (window[vp + 'CancelAnimationFrame']
                                    || window[vp + 'CancelRequestAnimationFrame']);
     }
+
+    // iOS6 有bug
     if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
         || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
         var lastTime = 0;
         window.requestAnimationFrame = function (callback) {
             var now = Date.now();
+            // 很巧妙，第一次时，nextTime - now === 0，callback 立即执行，之后每隔 16ms 频率执行。
             var nextTime = Math.max(lastTime + 16, now);
             return setTimeout(function () { callback(lastTime = nextTime); },
                               nextTime - now);
@@ -38,24 +41,24 @@
 
 (function () {
 
-    // 绑定事件封装成bind
+    // 封装绑定事件函数
     function bind(element, type, callback) {
         element.addEventListener(type, callback, false);
     }
 
-    // 运动使用的缓动函数，根据x求y。一个先加速再减速的过程，用来模拟摩擦力非常合适，当然回弹也是用的这段缓动。
+    // 运动使用的缓动函数，根据 x 求 y。一个先加速再减速的过程，用来模拟摩擦力非常合适，当然回弹也是用的这段缓动。
     function ease(x) {
         return Math.sqrt(1 - Math.pow(x - 1, 2));
     }
 
-    // 逆向缓动，根据y的值求x。和上面的缓动函数相反。
-    // 这个函数主要用于当运动超出min和max边界不能完整完成一次运动过程的时候求出其中不完整的路程的消耗的时间。
+    // 逆向缓动，根据 y 的值求 x。和上面的缓动函数相反。
+    // 这个函数主要用于当运动超出 min 和 max 边界不能完整完成一次运动过程的时候求出其中不完整的路程的消耗的时间。
     function reverseEase(y) {
         return 1 - Math.sqrt(1 - y * y);
     }
 
     // 阻止默认也有例外，如：{ tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/ }
-    // 检测INPUT|TEXTAREA|BUTTON|SELECT标签，如果是这些标签将不会去阻止默认事件。
+    // 检测 INPUT|TEXTAREA|BUTTON|SELECT 标签，如果是这些标签将不会去阻止默认事件。
     function preventDefaultTest(el, exceptions) {
         for (var i in exceptions) {
             if (exceptions[i].test(el[i])) {
@@ -66,9 +69,9 @@
     }
 
     var AlloyTouch = function(option) {
-        // 指定用户触摸的dom元素，即：option.touch【必选】
+        // 指定用户触摸的 DOM 元素，即：option.touch【必选】
         this.element = typeof option.touch === "string" ? document.querySelector(option.touch) : option.touch;
-        // 指定反馈触摸进行运动的dom元素，默认是 this.element【可选】
+        // 指定反馈触摸进行运动的 DOM 元素，默认是 this.element【可选】
         this.target = this._getValue(option.target, this.element);
         // 指定监听用户垂直方向上的触摸还是水平方向上的触摸，默认监听垂直方向上的【可选】
         this.vertical = this._getValue(option.vertical, true);
