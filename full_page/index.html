@@ -271,17 +271,22 @@
         Transform(scroller,true);
 
         var at=new AlloyTouch({
-            touch:"#demo0",//反馈触摸的dom
+            touch: "#demo0",//反馈触摸的dom
             target: scroller, //运动的对象
             property: "translateY",  //被滚动的属性
-            min:250-2000,
-            touchStart:function(evt){
+            min: 250-2000,
+            lockDirection: false,
+            step: 100,
+            touchStart: function(evt){
                 evt.stopPropagation();
             },
-            touchMove:function(evt){
+            touchMove: function(evt){
                 evt.stopPropagation();
             },
-            bindSelf:true,
+            touchEnd: function(){
+                console.log(arguments)
+            },
+            bindSelf: true,
             max: 0 //不必需,滚动属性的最大值
         })
 

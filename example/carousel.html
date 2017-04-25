@@ -45,7 +45,7 @@
         }
     </style>
 </head>
-<body style="height:2000px;">
+<body>
     <div id="carousel-container">
         <div class="carousel">
             <div style="width: 400%;" class="carousel-scroller" id="carousel-scroller">
@@ -63,7 +63,7 @@
         </div>
     </div>
     <a href="https://github.com/AlloyTeam/AlloyTouch" target="_blank" style="position: fixed; right: 0; top: 0; z-index: 3;width:60px;height:60px;">
-        <img style="width:60px;height:60px;" src="//alloyteam.github.io/github.png" alt="">
+        <img style="width:60px;height:60px;" src="http://alloyteam.github.io/github.png" alt="">
     </a>
 
     <script src="../transformjs/transform.js"></script>
@@ -82,30 +82,32 @@
             step: window.innerWidth,
             spring: true, //不必需,是否有回弹效果。默认是true
             inertia: false, //不必需,是否有惯性。默认是true
+            // 如果没有设置此回调，那么默认 move 距离超过 50% 才会翻页
             touchEnd: function (evt, v, index) {
-
                 var step_v = index * this.step * -1;
                 var dx = v - step_v;
+                console.log(v, index, dx)
 
                 if (v < this.min) {
-                    this.to(this.min);
+                    // 如果 v 小于最小值，将最小值赋给属性，附带 ease 动画
+                    this.to(this.min, 300);
                 } else if (v > this.max) {
-                    this.to(this.max);
+                    // 如果 v 大于最大值，将最大值赋给属性，附带 ease 动画
+                    this.to(this.max, 300);
                 } else if (Math.abs(dx) < 30) {
-                    this.to(step_v);
-
-                }
-                else if (dx > 0) {
-                    this.to(step_v + this.step);
-
+                    // 如果 move 的距离小于 30，那么还移动到上次位置
+                    this.to(step_v, 300);
+                } else if (dx > 0) {
+                    // 如果 move 的距离是正值，说明是在向前翻页，那么属性值赋值如下
+                    this.to(step_v + this.step, 300);
                 } else {
-
-                    this.to(step_v - this.step);
+                    // 如果 move 的距离是负值，说明是在向后翻页，那么属性值赋值如下
+                    this.to(step_v - this.step, 300);
                 }
 
                 return false;
-
             },
+            // 动画结束后才去更新右下角的导航索引高亮
             animationEnd: function (evt , v) {
                 var i = 0,
                     len = items.length;
@@ -116,7 +118,6 @@
                         items[i].classList.remove("active");
                     }
                 }
-
             }
         })
     </script>
